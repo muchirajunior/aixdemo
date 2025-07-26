@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/bun": "^1.2.19",
     "bootstrap": "^5.3.7",
     "openai": "^5.10.1",
     "react": "^19.1.0",

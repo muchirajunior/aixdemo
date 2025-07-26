@@ -1,26 +1,34 @@
 import { useState } from "react";
 import OpenAI from 'openai';
+import { OPENAI_API_KEY } from '../config';
 
 export default  function ChatAgent(){
     const [message,setMessage] =  useState("")
+    const [response,setResponse] = useState("")
     const [loading,setLoading] =  useState(false)
 
     async function getMessage(){
-        setLoading(true);
-        console.log(message);
-                                        
-        const token = process.env.NEXT_PUBLIC_OPENAI_API_KEY ?? '';
-        console.log('token :: ',token);
-        const client = new OpenAI();
-        client.apiKey = token;
-
-        const response = await client.responses.create({
-            model: "gpt-4.1",
-            input: "Write a one-sentence bedtime story about a unicorn."
-        }); 
-        setLoading(false);
-        setMessage('')
-        setMessage(response.output_text);
+       try {
+         setLoading(true);
+         console.log(message);           
+         const token =  OPENAI_API_KEY; 
+         const client = new OpenAI({
+             apiKey: token,
+             dangerouslyAllowBrowser:true,
+         });
+ 
+         const response = await client.responses.create({
+             model: "gpt-4.1",
+             input: message
+         }); 
+         setLoading(false);
+         setMessage('')
+         setResponse(response.output_text);
+       } catch (error) {
+        console.log(error);
+         setLoading(false);
+         setMessage('')
+       }
     }
     return (
         <div className="container py-2">
@@ -37,7 +45,12 @@ export default  function ChatAgent(){
                         </div>
                         <div className="d-flex justify-content-end">
                             <div className="bg-primary text-white rounded p-3">
-                                <p className="mb-0">Hello! I have a question.</p>
+                                <p className="mb-0">{message}</p>
+                            </div>
+                        </div>
+                         <div className="d-flex justify-content-start">
+                            <div className="bg-light rounded p-3">
+                                <p className="mb-0">{response}</p>
                             </div>
                         </div>
                     </div>
