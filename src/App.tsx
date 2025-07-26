@@ -2,6 +2,7 @@ import * as Icons from 'react-icons/md';
 import { Link, BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home  from './home/index.tsx';
 import ChatAgent from './chat/index.tsx';
+import AgentChat from './agent/index.tsx';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/chat' element={<ChatAgent />} />
+            <Route path='/agent' element={<AgentChat />} />
           </Routes>
         </div>
       </div>
