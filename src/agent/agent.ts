@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import { OPENAI_API_KEY } from "../config";
+import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL} from "../config";
 
 export async function myagent(message:String) :  Promise<{
-    data : String | null,
+    data : String,
     error: String | null
 }> {
     try {
@@ -24,16 +24,52 @@ export async function myagent(message:String) :  Promise<{
                     content: message.toString(),
                 },
             ],
+            tools:[
+                {
+                    type: 'function',
+                    function: {
+                        name: 'fetchData',
+                        description: 'Fetch data from SAP Service later',
+                        parameters: {
+                            type: 'object',
+                            properties: {
+                                routeQuery: {
+                                    type: 'string',
+                                    description: 'The route query path to fetch data from SAP'
+                                }
+                            },
+                            required: ['routeQuery']
+                        },
+                    }
+                }
+            ]
          }); 
+         
          return {
-            data: response.choices[0].message.content,
+            data: response.choices[0].message.content ?? '',
             error: null
         };
     } catch (error : any) {
         return {
-            data: null,
+            data: '',
             error: error.toString()
         };
     }
     
+}
+
+export async function fetchData(routeQuery: string) : Promise<any>{
+    try {
+        console.log(routeQuery);
+        
+        return await fetch(
+            `${SAP_SERVICE_LAYER_URL}${routeQuery}`,{
+                headers:{
+                    'Cookie':SAP_COOKIE
+                }
+            }
+        )
+    } catch (error) {
+        return {error: error}
+    }
 }
