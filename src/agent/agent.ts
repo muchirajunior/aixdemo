@@ -62,13 +62,14 @@ export async function fetchData(routeQuery: string) : Promise<any>{
     try {
         console.log(routeQuery);
         
-        return await fetch(
+        const response =  await fetch(
             `${SAP_SERVICE_LAYER_URL}${routeQuery}`,{
                 headers:{
                     'Cookie':SAP_COOKIE
                 }
             }
         )
+        return response.json();
     } catch (error) {
         return {error: error}
     }
