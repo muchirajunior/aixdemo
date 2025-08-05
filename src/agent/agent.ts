@@ -1,10 +1,7 @@
 import OpenAI from "openai";
 import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL} from "../config";
 
-export async function myagent(message:String) :  Promise<{
-    data : String,
-    error: String | null
-}> {
+export async function myagent(message:String) :  Promise<String> {
     try {
         const token =  OPENAI_API_KEY; 
          const client = new OpenAI({
@@ -24,53 +21,51 @@ export async function myagent(message:String) :  Promise<{
                     content: message.toString(),
                 },
             ],
-            tools:[
-                {
-                    type: 'function',
-                    function: {
-                        name: 'fetchData',
-                        description: 'Fetch data from SAP Service later',
-                        parameters: {
-                            type: 'object',
-                            properties: {
-                                routeQuery: {
-                                    type: 'string',
-                                    description: 'The route query path to fetch data from SAP'
-                                }
-                            },
-                            required: ['routeQuery']
-                        },
-                    }
-                }
-            ]
+            
          }); 
          
-         return {
-            data: response.choices[0].message.content ?? '',
-            error: null
-        };
+         return response.choices[0].message.content ?? '';
     } catch (error : any) {
-        return {
-            data: '',
-            error: error.toString()
-        };
+        return  error.toString();
     }
     
 }
 
-export async function fetchData(routeQuery: string) : Promise<any>{
+export async function getData(message: String) :  Promise<String>{
+    try {
+        var query = await myagent(`${message}, Give back only the query string starting with /route?params`);
+        if(query.length == 0 || !query.startsWith('/')){return query ?? 'Error fetching query'};
+        var data = await fetchData(query);
+        var reponse = await myagent(
+            `Here is user message ${message}, here is the reponse. ${data.toString()}, i need a nice formatted summary response to show on chat`
+        );
+
+        return reponse;
+
+    } catch (error: any) {
+        return error .toString();
+    }
+}
+
+export async function fetchData(routeQuery: String) : Promise<any>{
     try {
         console.log(routeQuery);
         
-        const response =  await fetch(
-            `${SAP_SERVICE_LAYER_URL}${routeQuery}`,{
-                headers:{
-                    'Cookie':SAP_COOKIE
-                }
+        const response = await fetch(
+            `${SAP_SERVICE_LAYER_URL}${routeQuery}`, {
+                headers: {
+                    'Cookie': SAP_COOKIE,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                mode: 'no-cors' // Explicitly enable CORS
             }
-        )
-        return response.json();
+        ).then((d)=>d.json());
+        console.log(response);
+        return  response;
     } catch (error) {
+        console.log('error fetching data from :: ', error);
+        
         return {error: error}
     }
 }
