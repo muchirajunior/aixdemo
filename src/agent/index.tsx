@@ -1,12 +1,11 @@
 import { useState } from "react"
-import { getData } from "./agent";
+import { getData , loginToSAP} from "./agent";
 
 export default function AgentChat (){
     const [message,setMessage] = useState("Hello how can i assist you")
     const [input,setInput] = useState("")
     const [response, setResponse] = useState("")
     const [loading, setLoading] = useState(false);
-    // const [error,setError] = useState('')
 
     async function submit(){
         if(input.length>5){
@@ -20,10 +19,24 @@ export default function AgentChat (){
         
     }
 
+   const handleLogin = async () => {
+    try {
+        setLoading(true)
+        await loginToSAP();
+        setLoading(false);
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
     return  (
         <div className="container">
             <div className="w-100"  style={{ height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
-                <h1 className="">Agent Mode</h1>
+                <div className="d-flex align-items-center">
+                   <span className="flex-fill fs-2" > Agent Mode</span>
+
+                    {loading ? <span className="spinner-border"></span> : <button className="btn btn-primary" onClick={()=>handleLogin()}>Login to SAP</button>} 
+                 </div>
                 <hr />
                 <div className="bg-primary text-white rounded shadow p-2 mb-3 float-end" style={{maxWidth:400}}>{message} </div>
                 <br />

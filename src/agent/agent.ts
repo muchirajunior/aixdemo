@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL} from "../config";
+import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL, SAP_COMPANYDB, SAP_USERNAME, SAP_PASSWORD } from "../config";
 
 export async function myagent(message:String) :  Promise<String> {
     try {
@@ -56,16 +56,49 @@ export async function fetchData(routeQuery: String) : Promise<any>{
                 headers: {
                     'Cookie': SAP_COOKIE,
                     'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Accept'
                 },
                 mode: 'no-cors' // Explicitly enable CORS
             }
-        ).then((d)=>d.json());
+        ).then((d)=>d.json()).then((d)=>d);
         console.log(response);
         return  response;
     } catch (error) {
         console.log('error fetching data from :: ', error);
         
         return {error: error}
+    }
+}
+
+export async function loginToSAP(): Promise<string> {
+    try {
+        const response = await fetch(`${SAP_SERVICE_LAYER_URL}/Login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Accept'
+            },
+            mode: 'no-cors',
+            body: JSON.stringify({
+                UserName: SAP_USERNAME,
+                Password: SAP_PASSWORD,
+                CompanyDB: SAP_COMPANYDB // You may want to make this configurable
+            })
+        }).then((d)=>d.json())
+        .then((data)=>{
+            console.log(data);
+            return data;
+        }).catch((e)=>console.log(e));
+        console.log(response);
+        return response;
+    } catch (error) {
+        console.log(error);
+        return 'Error logging into SAP';
     }
 }
