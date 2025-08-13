@@ -47,19 +47,22 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     final OpenAIChatCompletionModel completion = await OpenAI.instance.chat.create(
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [
         OpenAIChatCompletionChoiceMessageModel(
           role: OpenAIChatMessageRole.user,
           content: [OpenAIChatCompletionChoiceMessageContentItemModel.text(message)],
         ),
       ],
-      maxTokens: 100,
     );
     print(completion.choices.first.finishReason);
 
     setState(() {
-      _response = completion.choices.first.message.content?.first.text ?? '';
+      _response = '';
+      for (var element in completion.choices) {
+        _response += element.message.content?.first.text ?? '';
+      }
+      _response += '\n';
     });
   }
 
@@ -75,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Expanded(child: Text(_response)),
+            Expanded(child: SingleChildScrollView(child: Text(_response))),
             TextField(
               controller: _controller,
               maxLines: 2,
