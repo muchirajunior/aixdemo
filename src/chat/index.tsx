@@ -1,6 +1,6 @@
 import { useState } from "react";
 import OpenAI from 'openai';
-import { OPENAI_API_KEY } from '../config';
+import { OPENAI_API_KEY } from '../env';
 
 export default  function ChatAgent(){
     const [message,setMessage] =  useState("")

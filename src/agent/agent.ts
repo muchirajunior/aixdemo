@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL, SAP_COMPANYDB, SAP_USERNAME, SAP_PASSWORD } from "../config";
+import { OPENAI_API_KEY, SAP_COOKIE, SAP_SERVICE_LAYER_URL, SAP_COMPANYDB, SAP_USERNAME, SAP_PASSWORD } from "../env";
 
 export async function myagent(message:String) :  Promise<String> {
     try {
